@@ -14,7 +14,12 @@ using namespace std;
 
 RawParser::RawParser(const string &filename, bool reverseOrder):
 		ConfigBitstreamParser(filename, ConfigBitstreamParser::BIN_MODE,
-		false), _reverseOrder(reverseOrder)
+		false), _reverseOrder(reverseOrder), _invertBits(false)
+{}
+
+RawParser::RawParser(const string &filename, bool reverseOrder, bool invertBits):
+		ConfigBitstreamParser(filename, ConfigBitstreamParser::BIN_MODE,
+		false), _reverseOrder(reverseOrder), _invertBits(invertBits)
 {}
 
 int RawParser::parse()
@@ -26,6 +31,11 @@ int RawParser::parse()
 	if (_reverseOrder) {
 		for (int i = 0; i < _bit_length; i++) {
 			_bit_data[i] = reverseByte(_bit_data[i]);
+		}
+	}
+	if (_invertBits) {
+		for (int i = 0; i < _bit_length; i++) {
+			_bit_data[i] ^= 0xFF;
 		}
 	}
 

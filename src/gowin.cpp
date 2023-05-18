@@ -163,10 +163,15 @@ Gowin::Gowin(Jtag *jtag, const string filename, const string &file_type, std::st
 	};
 
 	if (mcufw.size() > 0) {
-		if (idcode != 0x0100981b)
-			throw std::runtime_error("Microcontroller firmware flashing only supported on GW1NSR-4C");
-		
-		_mcufw = new RawParser(mcufw, false);
+		if (idcode == 0x0100981b) {                     /* GW1NSR-4C */
+			_mcufwstart = 0x380;
+			_mcufw = new RawParser(mcufw, false);
+		} else if (idcode == 0x0100481b) {              /* GW1NR-9C (the top nibble is masked) */
+			_mcufwstart = 0x6d0;
+			_mcufw = new RawParser(mcufw, false, true); /* The data needs to be inverted */
+		} else {
+			throw std::runtime_error("Microcontroller firmware flashing only supported on GW1NSR-4C and GW1NR-9C");
+		}
 
 		if (_mcufw->parse() == EXIT_FAILURE) {
 			printError("FAIL");
@@ -224,7 +229,8 @@ void Gowin::programFlash()
 	if (!flashFLASH(0, data, length))
 		return;
 	if (mcu_data) {
-		if (!flashFLASH(0x380, mcu_data, mcu_length))
+		printInfo("Writing " + std::to_string(mcu_length) +" bits of MCU data starting at page " + std::to_string(_mcufwstart));
+		if (!flashFLASH(_mcufwstart, mcu_data, mcu_length))
 			return;
 	}
 	if (_verify)

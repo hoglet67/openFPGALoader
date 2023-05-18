@@ -25,6 +25,13 @@ class RawParser: public ConfigBitstreamParser {
 		 */
 		RawParser(const std::string &filename, bool reverseOrder);
 		/*!
+		 * \brief constructor
+		 * \param[in] filename: raw file to read
+		 * \param[in] reverseOrder: reverse each byte (LSB -> MSB, MSB -> LSB)
+		 * \param[in] invertBits: invert each byte (00 -> FF, 55 -> AA, etc)
+		 */
+		RawParser(const std::string &filename, bool reverseOrder, bool invertBits);
+		/*!
 		 * \brief read full content of the file, fill the buffer
 		 * \return EXIT_SUCCESS is file is fully read, EXIT_FAILURE otherwise
 		 */
@@ -32,7 +39,7 @@ class RawParser: public ConfigBitstreamParser {
 
 	private:
 		bool _reverseOrder; /*!< tail if byte must be reversed */
+		bool _invertBits;   /*!< tail if byte must be inverted */
 };
 
 #endif  // SRC_RAWPARSER_HPP_
-
